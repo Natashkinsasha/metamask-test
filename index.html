@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MetaMask Transaction Example</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<button id="approveButton">Approve Tokens</button>
+
+<script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+        type="application/javascript"></script>
+<script>
+    const approveButton = document.getElementById('approveButton');
+
+    approveButton.addEventListener('click', async () => {
+        if (typeof window.ethereum === 'undefined') {
+            alert('MetaMask not detected!');
+            return;
+        }
+
+        // Connect to MetaMask
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        // Replace with your token contract address, spender address, and the approve amount
+        const tokenContractAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
+        const spenderAddress = '0xd0e7A69c5587915409afCB65B7E606754cAFCEc3';
+        const approveAmount = ethers.utils.parseUnits('1', 18); // For example, 1 token with 18 decimals
+
+        const erc20Abi = [
+            'function approve(address spender, uint256 value) public returns (bool)',
+        ];
+        const tokenContract = new ethers.Contract(tokenContractAddress, erc20Abi, signer);
+
+        try {
+            const tx = await tokenContract.approve(spenderAddress, approveAmount);
+            await tx.wait();
+            alert('Transaction successful!');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Transaction failed!');
+        }
+    });
+</script>
+</body>
+</html>
